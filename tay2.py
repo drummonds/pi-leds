@@ -1,0 +1,52 @@
+#!/usr/bin/python
+
+# Light painting / POV demo for Raspberry Pi using
+# Adafruit Digital Addressable RGB LED flex strip.
+# ----> http://adafruit.com/products/306
+
+import ledrope
+import time,math,random
+
+#tay party
+state = 100
+wrap = 1000
+def tay_party():
+	global state
+	global wrap
+	if state > wrap:
+		state = -1
+		wrap = int(102 + random.random()*200)
+	elif state > 101:
+		all_one_colour(0,0,0)
+	else:
+		for i in range(height):
+			i3 = i * 3
+                	if i == state:
+				ledrope.next_led[i3 + 0] = 128 | 0
+				ledrope.next_led[i3 + 1] = 128 | 127
+				ledrope.next_led[i3 + 2] = 128 | 0
+			else:
+				ledrope.next_led[i3 + 0] = 128 | 0
+				ledrope.next_led[i3 + 1] = 128 | 0
+				ledrope.next_led[i3 + 2] = 128 | 0
+	state += 1
+
+
+# Using function
+try:
+	while True:
+		ledrope.all_one_colour (50,50,50)
+                #drummond_flag(theta)
+		#tay_party()
+        	ledrope.write()
+
+		time.sleep(0.01)
+
+finally:
+	ledrope.all_one_colour(0,0,0)
+       	ledrope.write()
+	
+
+ledrope.all_one_colour(50,50,60)
+ledrope.write()
+

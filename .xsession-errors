@@ -1,0 +1,5 @@
+Xsession: X session started for pi at Fri Nov 16 14:13:17 GMT 2012
+Obt-Message: Xinerama extension is not present on the server
+Openbox-Message: Unable to find a valid menu file "/usr/share/lxde/openbox/menu.xml"
+XIO:  fatal IO error 11 (Resource temporarily unavailable) on X server ":0"
+      after 1978 requests (1978 known processed) with 0 events remaining.

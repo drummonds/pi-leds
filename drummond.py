@@ -1,0 +1,103 @@
+#!/usr/bin/python
+
+# Light painting / POV demo for Raspberry Pi using
+# Adafruit Digital Addressable RGB LED flex strip.
+# ----> http://adafruit.com/products/306
+
+import RPi.GPIO as GPIO, Image, time
+
+# Configurable values
+filename  = "hello.png"
+dev       = "/dev/spidev0.0"
+
+# read in values from user
+#print("Input values 0 to 127.")
+setRed=setGreen=setBlue = 0
+#setRed   = int(raw_input("Set the red value:   "))
+#setGreen = int(raw_input("Set the green value: "))
+#setBlue  = int(raw_input("Set the blue value:  "))
+
+# Open SPI device, load image in RGB format and get dimensions:
+spidev    = file(dev, "wb")
+print "Loading..."
+img       = Image.open(filename).convert("RGB")
+pixels    = img.load()
+#width     = img.size[0]
+width	= 102
+#height    = img.size[1]
+height = 102
+print "%dx%d pixels" % img.size
+# To do: add resize here if image is not desired height
+
+# Calculate gamma correction table.  This includes
+# LPD8806-specific conversion (7-bit color w/high bit set).
+gamma = bytearray(256)
+for i in range(256):
+	gamma[i] = 0x80 | int(pow(float(i) / 255.0, 2.5) * 127.0 + 0.5)
+
+# Create list of bytearrays, one for each column of image.
+# R, G, B byte per pixel, plus extra '0' byte at end for latch.
+print "Allocating..."
+column = [0 for x in range(width)]
+for x in range(width):
+	column[x] = bytearray(height * 3 + 1)
+
+# Convert 8-bit RGB image into column-wise GRB bytearray list.
+#print "Converting..."
+#for x in range(width):
+#	for y in range(height):
+#		value = pixels[x, y]
+#		y3 = y * 3
+#		column[x][y3]     = gamma[value[1]]
+#		column[x][y3 + 1] = gamma[value[0]]
+#		column[x][y3 + 2] = gamma[value[2]]
+
+#Pattern definition 
+def all_one_colour():
+	r = 128 | setGreen
+	g = 128 | setRed
+	b = 128 | setBlue
+
+	for i in range(height):
+		i3 = i * 3
+		next_led[i3 + 0] = r
+		next_led[i3 + 1] = g
+		next_led[i3 + 2] = b
+#Drummond flag
+def drummond_flag(wave=0.0):
+        change = int(41+20*wave)
+
+	for i in range(height):
+		i3 = i * 3
+                if i < change:
+			next_led[i3 + 0] = 128 | 127
+			next_led[i3 + 1] = 128 | 127
+			next_led[i3 + 2] = 128 | 0
+		else:
+			next_led[i3 + 0] = 128 | 0
+			next_led[i3 + 1] = 128 | 127
+			next_led[i3 + 2] = 128 | 0
+
+
+# Then it's a trivial matter of writing each column to the SPI port.
+# going to iterate through all the colours
+print "Displaying..."
+y = 0
+next_led = bytearray(height * 3 + 1)
+try:
+	while True:
+		#all_one_colour()
+                drummond_flag()
+
+        	spidev.write(next_led)
+        	spidev.flush()
+
+		time.sleep(0.1)
+
+finally:
+	r=g=b=0
+	all_one_colour()
+       	spidev.write(next_led)
+       	spidev.flush()
+	
+
